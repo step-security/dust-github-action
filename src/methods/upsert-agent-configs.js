@@ -125,12 +125,7 @@ export default async function upsertAgentConfigs(config) {
     }
 
     try {
-      const existingId = await findAgentByHandle(
-        baseUrl,
-        apiKey,
-        handle,
-        core
-      );
+      const existingId = await findAgentByHandle(baseUrl, apiKey, handle, core);
 
       if (existingId) {
         core.info(`  Updating existing agent "${handle}" (${existingId})...`);

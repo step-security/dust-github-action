@@ -1,6 +1,6 @@
 {
   "name": "dust-github-action",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Interact with your Dust workspace from GitHub Actions",
   "main": "dist/index.js",
   "type": "module",
@@ -13,20 +13,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dust-tt/dust-github-action.git"
+    "url": "git+https://github.com/step-security/dust-github-action.git"
   },
-  "keywords": [
-    "dust",
-    "github",
-    "action",
-    "skills",
-    "agents"
-  ],
-  "author": "Dust",
+  "keywords": ["dust", "github", "action", "skills", "agents"],
+  "author": "step-security",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
     "adm-zip": "^0.5.16",
+    "axios": "^1.18.0",
     "js-yaml": "^4.1.1"
   },
   "devDependencies": {

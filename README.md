@@ -12,7 +12,7 @@ Syncs [Agent Skills](https://agentskills.io/specification) from the repository t
 their directories into a ZIP, and uploads it.
 
 ```yaml
-- uses: step-security/dust-github-action@v1
+- uses: step-security/dust-github-action@v0
   with:
     method: upsert-skills
     workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
@@ -26,7 +26,7 @@ Upserts agent configurations from YAML files in the repository to Dust. Searches
 them if found, creates new ones otherwise.
 
 ```yaml
-- uses: step-security/dust-github-action@v1
+- uses: step-security/dust-github-action@v0
   with:
     method: upsert-agent-configs
     workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync skills
-        uses: step-security/dust-github-action@v1
+        uses: step-security/dust-github-action@v0
         with:
           method: upsert-skills
           workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync agent configs
-        uses: step-security/dust-github-action@v1
+        uses: step-security/dust-github-action@v0
         with:
           method: upsert-agent-configs
           workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
@@ -116,70 +116,3 @@ jobs:
           agent-configs: |
             agents/*.yaml
 ```
-
-## Skill format
-
-Each skill lives in its own directory with a `SKILL.md` file ([spec](https://agentskills.io/specification)):
-
-```
-skills/
-  review-pr/
-    SKILL.md
-    template.md       # optional attachment
-  summarize/
-    SKILL.md
-```
-
-`SKILL.md` uses YAML frontmatter for metadata and the body as instructions:
-
-```markdown
----
-name: Review PR
-description: Reviews pull requests for code quality and correctness
----
-
-You are a code reviewer. When asked to review a PR, analyze the diff for:
-
-- Correctness
-- Performance
-- Security
-```
-
-## Agent config format
-
-Each agent configuration lives in a single YAML file. At minimum, an `agent.handle` field is required. Example:
-
-```yaml
-agent:
-  handle: MyAssistant
-  description: A helpful assistant for my team
-  instructions: You are a helpful assistant.
-  scope: visible
-  max_steps_per_run: 64
-  visualization_enabled: false
-  avatar_url: https://dust.tt/static/emojis/bg-yellow-200/memo/1f4dd
-
-generation_settings:
-  provider_id: anthropic
-  model_id: claude-sonnet-4-5
-  temperature: 0.7
-  reasoning_effort: light
-
-editors:
-  - alice@example.com
-  - bob@example.com
-
-tags: [ ]
-toolset: [ ]
-```
-
-## Development
-
-```bash
-npm install
-npm run build    # compiles to dist/ via @vercel/ncc
-npm run check    # type-check with tsc
-npm test         # run tests
-```
-
-`dist/` is gitignored and built automatically on release via the publish workflow.

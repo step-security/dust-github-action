@@ -1,5 +1,5 @@
 name: "Dust GitHub Action"
-author: "Dust"
+author: 'step-security'
 description: "Send data to your Dust workspace from GitHub Actions."
 
 inputs:

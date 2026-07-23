@@ -24,13 +24,13 @@ export async function fetchWithRetry(url, options, core) {
     if (attempt < MAX_RETRIES) {
       const delayMs = BASE_DELAY_MS * 2 ** attempt;
       core.info(
-        `Request failed (${response.status}), retrying in ${delayMs}ms...`,
+        `Request failed (${response.status}), retrying in ${delayMs}ms...`
       );
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     } else {
       const body = await response.text();
       throw new Error(
-        `API error (${response.status}) after ${MAX_RETRIES} retries: ${body}`,
+        `API error (${response.status}) after ${MAX_RETRIES} retries: ${body}`
       );
     }
   }

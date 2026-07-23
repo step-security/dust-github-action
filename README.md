@@ -116,3 +116,59 @@ jobs:
           agent-configs: |
             agents/*.yaml
 ```
+
+## Skill format
+
+Each skill lives in its own directory with a `SKILL.md` file ([spec](https://agentskills.io/specification)):
+
+```
+skills/
+  review-pr/
+    SKILL.md
+    template.md       # optional attachment
+  summarize/
+    SKILL.md
+```
+
+`SKILL.md` uses YAML frontmatter for metadata and the body as instructions:
+
+```markdown
+---
+name: Review PR
+description: Reviews pull requests for code quality and correctness
+---
+
+You are a code reviewer. When asked to review a PR, analyze the diff for:
+
+- Correctness
+- Performance
+- Security
+```
+
+## Agent config format
+
+Each agent configuration lives in a single YAML file. At minimum, an `agent.handle` field is required. Example:
+
+```yaml
+agent:
+  handle: MyAssistant
+  description: A helpful assistant for my team
+  instructions: You are a helpful assistant.
+  scope: visible
+  max_steps_per_run: 64
+  visualization_enabled: false
+  avatar_url: https://dust.tt/static/emojis/bg-yellow-200/memo/1f4dd
+
+generation_settings:
+  provider_id: anthropic
+  model_id: claude-sonnet-4-5
+  temperature: 0.7
+  reasoning_effort: light
+
+editors:
+  - alice@example.com
+  - bob@example.com
+
+tags: [ ]
+toolset: [ ]
+```

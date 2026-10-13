@@ -18,7 +18,30 @@ their directories into a ZIP, and uploads it.
     workspace-id: ${{ vars.DUST_WORKSPACE_ID }}
     api-key: ${{ secrets.DUST_API_KEY }}
     region: EU
+    names: |
+      Review PR
+      Summarize
+    editors: |
+      alice@example.com
+      bob@example.com
+    availability: workspace_users
 ```
+
+The optional `names` input selects skills by their exact `name` in `SKILL.md`. Omit it to import all detected skills.
+The optional `editors` input adds editors to each imported or updated skill. Use email addresses of active workspace members.
+Existing editors are preserved. Both inputs accept one value per line.
+
+The optional `availability` input sets who can see and use the imported or updated skills:
+
+| Value              | UI label           | Meaning                                                                                                   | Required permission                                              |
+|--------------------|--------------------|-----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| `editors`          | Editors only       | Only the skill's editors can find it in the composer and agent builder. Default for new skills.           | —                                                                |
+| `workspace_users`  | All members        | Every workspace member can find and use it.                                                               | Manage skill availability                                        |
+| `users_and_agents` | Members and agents | Every member can find it, and agents with Discover Skills enabled (including @Dust) can use it automatically. | Manage skill availability + Make skills discoverable to agents |
+
+Skills created by an API key have no editors, so with the default availability they are not discoverable by anyone.
+To make them visible, set `editors` (so those members can find and manage them) or set `availability` to
+`workspace_users` or `users_and_agents`. Admin API keys hold both permissions.
 
 ### `upsert-agent-configs`
 
@@ -49,13 +72,16 @@ Each YAML file must include at minimum an `agent.handle` field. See [Agent confi
 | `workspace-id`  | yes      | Dust workspace sId                                                       |
 | `api-key`       | yes      | Dust API key                                                             |
 | `region`        | yes      | Workspace region (`EU` or `US`)                                          |
+| `names`         | no       | [upsert-skills] Newline-separated skill names to import. Defaults to all skills. |
+| `editors`       | no       | [upsert-skills] Newline-separated editor email addresses to add to imported or updated skills. |
+| `availability`  | no       | [upsert-skills] `editors`, `workspace_users` or `users_and_agents`. Defaults to `editors` for new skills. |
 | `agent-configs` | no       | [upsert-agent-configs] List of glob patterns for YAML agent config files |
 
 ## Common outputs
 
 | Output     | Description                                                                            |
 |------------|----------------------------------------------------------------------------------------|
-| `json`     | Raw JSON response from the Dust API (includes `imported`, `updated`, `errored` arrays) |
+| `json`     | Raw JSON response from the Dust API (`imported`, `updated` and `skipped` arrays for skills; `imported`, `updated` and `errored` arrays for agent configs) |
 | `imported` | Number of newly created agents                                                         |
 | `updated`  | Number of updated agents                                                               |
 

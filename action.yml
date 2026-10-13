@@ -15,6 +15,12 @@ inputs:
   region:
     description: "Dust workspace region (EU or US)"
     required: true
+  names:
+    description: "[upsert-skills] Newline-separated skill names to import. Omit to import all skills."
+    required: false
+  editors:
+    description: "[upsert-skills] Newline-separated editor email addresses to add to imported or updated skills. Existing editors are preserved."
+    required: false
   agent-configs:
     description: "[upsert-agent-configs] List of glob patterns matching YAML agent configuration files"
     required: false

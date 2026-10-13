@@ -8,7 +8,7 @@ const MAX_ZIP_SIZE_MB = 5;
 /**
  * Zips the current directory and uploads to Dust.
  * The API handles SKILL.md detection.
- * @param {Config} config
+ * @param {import("../config.js").default} config
  */
 export default async function upsertSkills(config) {
   const { core } = config;
@@ -25,11 +25,21 @@ export default async function upsertSkills(config) {
 
   core.info(`Uploading ${(zipBuffer.length / 1024).toFixed(0)} KB ZIP.`);
 
-  const { apiUrl, workspaceId, apiKey } = config.inputs;
+  const { apiUrl, workspaceId, apiKey, names, editors, availability } =
+    config.inputs;
 
   const blob = new Blob([zipBuffer], { type: "application/zip" });
   const form = new FormData();
   form.append("files", blob, "skills.zip");
+  for (const name of names) {
+    form.append("names", name);
+  }
+  for (const editor of editors) {
+    form.append("editors", editor);
+  }
+  if (availability) {
+    form.append("availability", availability);
+  }
 
   const data = await fetchWithRetry(
     `${apiUrl}/api/v1/w/${workspaceId}/skills`,
@@ -43,14 +53,14 @@ export default async function upsertSkills(config) {
 
   const importedCount = data.imported?.length ?? 0;
   const updatedCount = data.updated?.length ?? 0;
-  const erroredCount = data.errored?.length ?? 0;
+  const skippedCount = data.skipped?.length ?? 0;
 
   core.setOutput("json", JSON.stringify(data));
   core.setOutput("imported", importedCount);
   core.setOutput("updated", updatedCount);
 
   core.notice(
-    `Synced skills: imported ${importedCount}, updated ${updatedCount}, errored ${erroredCount}`
+    `Synced skills: imported ${importedCount}, updated ${updatedCount}, skipped ${skippedCount}`
   );
 
   for (const skill of data.imported ?? []) {
@@ -59,8 +69,8 @@ export default async function upsertSkills(config) {
   for (const skill of data.updated ?? []) {
     core.info(`  ~ ${skill.name}`);
   }
-  for (const err of data.errored ?? []) {
-    core.warning(`Skill ${err.name}: ${err.message}`);
+  for (const skipped of data.skipped ?? []) {
+    core.warning(`Skill ${skipped.name} skipped: ${skipped.message}`);
   }
 }
 

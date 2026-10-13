@@ -13,6 +13,8 @@ const API_URLS = /** @type {const} */ ({
  * @property {string} workspaceId - The Dust workspace sId.
  * @property {string} apiKey - The Dust API key.
  * @property {string} apiUrl - The resolved Dust API base URL.
+ * @property {string[]} names - Skill names to import.
+ * @property {string[]} editors - Editor email addresses to add to imported or updated skills.
  * @property {string} agentConfigs - Comma-separated list of file/folder paths for agent configs.
  */
 
@@ -39,6 +41,8 @@ export default class Config {
       workspaceId: core.getInput("workspace-id", { required: true }),
       apiKey: core.getInput("api-key", { required: true }),
       apiUrl: API_URLS[region],
+      names: core.getMultilineInput("names").filter(Boolean),
+      editors: core.getMultilineInput("editors").filter(Boolean),
       agentConfigs: core.getInput("agent-configs"),
     };
 

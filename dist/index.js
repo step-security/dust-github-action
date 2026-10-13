@@ -48901,12 +48901,25 @@ const API_URLS = /** @type {const} */ ({
   US: "https://dust.tt",
 });
 
+const SKILL_AVAILABILITIES = /** @type {const} */ ([
+  "editors",
+  "workspace_users",
+  "users_and_agents",
+]);
+
+/**
+ * @typedef {(typeof SKILL_AVAILABILITIES)[number]} SkillAvailability
+ */
+
 /**
  * @typedef Inputs
  * @property {string} method - The action method to run (e.g. "upsert-skills", "upsert-agent-configs").
  * @property {string} workspaceId - The Dust workspace sId.
  * @property {string} apiKey - The Dust API key.
  * @property {string} apiUrl - The resolved Dust API base URL.
+ * @property {string[]} names - Skill names to import.
+ * @property {string[]} editors - Editor email addresses to add to imported or updated skills.
+ * @property {SkillAvailability | undefined} availability - Availability to apply to imported or updated skills.
  * @property {string} agentConfigs - Comma-separated list of file/folder paths for agent configs.
  */
 
@@ -48928,11 +48941,26 @@ class Config {
       throw new Error(`Invalid region "${region}". Must be "EU" or "US".`);
     }
 
+    const availability = core.getInput("availability") || undefined;
+    if (
+      availability !== undefined &&
+      !SKILL_AVAILABILITIES.includes(
+        /** @type {SkillAvailability} */ (availability)
+      )
+    ) {
+      throw new Error(
+        `Invalid availability "${availability}". Must be one of: ${SKILL_AVAILABILITIES.join(", ")}.`
+      );
+    }
+
     this.inputs = {
       method: core.getInput("method", { required: true }),
       workspaceId: core.getInput("workspace-id", { required: true }),
       apiKey: core.getInput("api-key", { required: true }),
       apiUrl: API_URLS[region],
+      names: core.getMultilineInput("names").filter(Boolean),
+      editors: core.getMultilineInput("editors").filter(Boolean),
+      availability: /** @type {SkillAvailability | undefined} */ (availability),
       agentConfigs: core.getInput("agent-configs"),
     };
 
@@ -52314,7 +52342,7 @@ const MAX_ZIP_SIZE_MB = 5;
 /**
  * Zips the current directory and uploads to Dust.
  * The API handles SKILL.md detection.
- * @param {Config} config
+ * @param {import("../config.js").default} config
  */
 async function upsertSkills(config) {
   const { core } = config;
@@ -52331,11 +52359,21 @@ async function upsertSkills(config) {
 
   core.info(`Uploading ${(zipBuffer.length / 1024).toFixed(0)} KB ZIP.`);
 
-  const { apiUrl, workspaceId, apiKey } = config.inputs;
+  const { apiUrl, workspaceId, apiKey, names, editors, availability } =
+    config.inputs;
 
   const blob = new Blob([zipBuffer], { type: "application/zip" });
   const form = new FormData();
   form.append("files", blob, "skills.zip");
+  for (const name of names) {
+    form.append("names", name);
+  }
+  for (const editor of editors) {
+    form.append("editors", editor);
+  }
+  if (availability) {
+    form.append("availability", availability);
+  }
 
   const data = await (0,_utils_fetch_js__WEBPACK_IMPORTED_MODULE_3__/* .fetchWithRetry */ .J)(
     `${apiUrl}/api/v1/w/${workspaceId}/skills`,
@@ -52349,14 +52387,14 @@ async function upsertSkills(config) {
 
   const importedCount = data.imported?.length ?? 0;
   const updatedCount = data.updated?.length ?? 0;
-  const erroredCount = data.errored?.length ?? 0;
+  const skippedCount = data.skipped?.length ?? 0;
 
   core.setOutput("json", JSON.stringify(data));
   core.setOutput("imported", importedCount);
   core.setOutput("updated", updatedCount);
 
   core.notice(
-    `Synced skills: imported ${importedCount}, updated ${updatedCount}, errored ${erroredCount}`
+    `Synced skills: imported ${importedCount}, updated ${updatedCount}, skipped ${skippedCount}`
   );
 
   for (const skill of data.imported ?? []) {
@@ -52365,8 +52403,8 @@ async function upsertSkills(config) {
   for (const skill of data.updated ?? []) {
     core.info(`  ~ ${skill.name}`);
   }
-  for (const err of data.errored ?? []) {
-    core.warning(`Skill ${err.name}: ${err.message}`);
+  for (const skipped of data.skipped ?? []) {
+    core.warning(`Skill ${skipped.name} skipped: ${skipped.message}`);
   }
 }
 

@@ -22,7 +22,7 @@ inputs:
     description: "[upsert-skills] Newline-separated editor email addresses to add to imported or updated skills. Existing editors are preserved."
     required: false
   availability:
-    description: "[upsert-skills] Availability to apply to imported or updated skills: editors (unpublished), workspace_users (published) or users_and_agents (published and discoverable by agents). New skills default to editors and existing skills keep their availability when omitted."
+    description: "[upsert-skills] Availability to apply to imported or updated skills: editors (Editors only), workspace_users (All members) or users_and_agents (Members and agents). New skills default to editors and existing skills keep their availability when omitted."
     required: false
   agent-configs:
     description: "[upsert-agent-configs] List of glob patterns matching YAML agent configuration files"

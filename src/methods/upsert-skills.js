@@ -8,7 +8,7 @@ const MAX_ZIP_SIZE_MB = 5;
 /**
  * Zips the current directory and uploads to Dust.
  * The API handles SKILL.md detection.
- * @param {Config} config
+ * @param {import("../config.js").default} config
  */
 export default async function upsertSkills(config) {
   const { core } = config;
@@ -25,11 +25,17 @@ export default async function upsertSkills(config) {
 
   core.info(`Uploading ${(zipBuffer.length / 1024).toFixed(0)} KB ZIP.`);
 
-  const { apiUrl, workspaceId, apiKey } = config.inputs;
+  const { apiUrl, workspaceId, apiKey, names, editors } = config.inputs;
 
   const blob = new Blob([zipBuffer], { type: "application/zip" });
   const form = new FormData();
   form.append("files", blob, "skills.zip");
+  for (const name of names) {
+    form.append("names", name);
+  }
+  for (const editor of editors) {
+    form.append("editors", editor);
+  }
 
   const data = await fetchWithRetry(
     `${apiUrl}/api/v1/w/${workspaceId}/skills`,

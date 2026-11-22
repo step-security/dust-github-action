@@ -1,5 +1,6 @@
 {
-  "name": "dust-github-action",
+  "name": "@step-security/dust-github-action",
+  "private": true,
   "version": "0.2.0",
   "description": "Interact with your Dust workspace from GitHub Actions",
   "main": "dist/index.js",
@@ -17,11 +18,12 @@
   },
   "keywords": ["dust", "github", "action", "skills", "agents"],
   "author": "step-security",
+  "publisher": "step-security",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
     "adm-zip": "^0.6.0",
-    "axios": "^1.18.0",
+    "axios": "^1.20.0",
     "js-yaml": "^4.1.1"
   },
   "devDependencies": {
@@ -33,6 +35,11 @@
     "typescript": "^5.9.3"
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=24",
+    "npm": ">=11"
+  },
+  "homepage": "https://github.com/step-security/dust-github-action#readme",
+  "bugs": {
+    "url": "https://github.com/step-security/dust-github-action/issues"
   }
 }

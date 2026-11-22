@@ -25,6 +25,7 @@ their directories into a ZIP, and uploads it.
       alice@example.com
       bob@example.com
     availability: workspace_users
+    on-conflict: override
 ```
 
 The optional `names` input selects skills by their exact `name` in `SKILL.md`. Omit it to import all detected skills.
@@ -42,6 +43,18 @@ The optional `availability` input sets who can see and use the imported or updat
 Skills created by an API key have no editors, so with the default availability they are not discoverable by anyone.
 To make them visible, set `editors` (so those members can find and manage them) or set `availability` to
 `workspace_users` or `users_and_agents`. Admin API keys hold both permissions.
+
+The optional `on-conflict` input decides what happens when a skill with the same name already exists in the workspace:
+
+| Value      | Meaning                                                                       |
+|------------|-------------------------------------------------------------------------------|
+| `override` | Updates the existing skill. Default, so skills stay in sync on every push.    |
+| `skip`     | Leaves the existing skill unchanged and reports it as skipped.               |
+| `error`    | Rejects the whole import. Nothing is created or updated.                      |
+
+`override` needs an **admin API key**. Skills created by an API key have no editors, and a non-admin key cannot become
+an editor of them, so a non-admin key can create skills on the first run but fails to update them afterwards with
+`You don't have permission to update…`. With a non-admin key, use `skip` to only create new skills.
 
 ### `upsert-agent-configs`
 
@@ -75,6 +88,7 @@ Each YAML file must include at minimum an `agent.handle` field. See [Agent confi
 | `names`         | no       | [upsert-skills] Newline-separated skill names to import. Defaults to all skills. |
 | `editors`       | no       | [upsert-skills] Newline-separated editor email addresses to add to imported or updated skills. |
 | `availability`  | no       | [upsert-skills] `editors`, `workspace_users` or `users_and_agents`. Defaults to `editors` for new skills. |
+| `on-conflict`   | no       | [upsert-skills] `override`, `skip` or `error` when a skill name already exists. Defaults to `override` (requires an admin API key). |
 | `agent-configs` | no       | [upsert-agent-configs] List of glob patterns for YAML agent config files |
 
 ## Common outputs

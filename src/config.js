@@ -17,6 +17,16 @@ const SKILL_AVAILABILITIES = /** @type {const} */ ([
  * @typedef {(typeof SKILL_AVAILABILITIES)[number]} SkillAvailability
  */
 
+const SKILL_CONFLICT_STRATEGIES = /** @type {const} */ ([
+  "error",
+  "skip",
+  "override",
+]);
+
+/**
+ * @typedef {(typeof SKILL_CONFLICT_STRATEGIES)[number]} SkillConflictStrategy
+ */
+
 /**
  * @typedef Inputs
  * @property {string} method - The action method to run (e.g. "upsert-skills", "upsert-agent-configs").
@@ -26,6 +36,7 @@ const SKILL_AVAILABILITIES = /** @type {const} */ ([
  * @property {string[]} names - Skill names to import.
  * @property {string[]} editors - Editor email addresses to add to imported or updated skills.
  * @property {SkillAvailability | undefined} availability - Availability to apply to imported or updated skills.
+ * @property {SkillConflictStrategy} onConflict - Strategy for skills whose name already exists in the workspace.
  * @property {string} agentConfigs - Comma-separated list of file/folder paths for agent configs.
  */
 
@@ -59,6 +70,17 @@ export default class Config {
       );
     }
 
+    const onConflict = core.getInput("on-conflict") || "override";
+    if (
+      !SKILL_CONFLICT_STRATEGIES.includes(
+        /** @type {SkillConflictStrategy} */ (onConflict)
+      )
+    ) {
+      throw new Error(
+        `Invalid on-conflict "${onConflict}". Must be one of: ${SKILL_CONFLICT_STRATEGIES.join(", ")}.`
+      );
+    }
+
     this.inputs = {
       method: core.getInput("method", { required: true }),
       workspaceId: core.getInput("workspace-id", { required: true }),
@@ -67,6 +89,7 @@ export default class Config {
       names: core.getMultilineInput("names").filter(Boolean),
       editors: core.getMultilineInput("editors").filter(Boolean),
       availability: /** @type {SkillAvailability | undefined} */ (availability),
+      onConflict: /** @type {SkillConflictStrategy} */ (onConflict),
       agentConfigs: core.getInput("agent-configs"),
     };
 

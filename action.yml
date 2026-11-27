@@ -24,6 +24,9 @@ inputs:
   availability:
     description: "[upsert-skills] Availability to apply to imported or updated skills: editors (Editors only), workspace_users (All members) or users_and_agents (Members and agents). New skills default to editors and existing skills keep their availability when omitted."
     required: false
+  on-conflict:
+    description: "[upsert-skills] What to do when a skill with the same name already exists in the workspace: override (update the existing skill), skip (leave it unchanged and report it as skipped) or error (reject the whole import). Defaults to override. Updating existing skills requires an admin API key."
+    required: false
   agent-configs:
     description: "[upsert-agent-configs] List of glob patterns matching YAML agent configuration files"
     required: false

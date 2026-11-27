@@ -25,12 +25,20 @@ export default async function upsertSkills(config) {
 
   core.info(`Uploading ${(zipBuffer.length / 1024).toFixed(0)} KB ZIP.`);
 
-  const { apiUrl, workspaceId, apiKey, names, editors, availability } =
-    config.inputs;
+  const {
+    apiUrl,
+    workspaceId,
+    apiKey,
+    names,
+    editors,
+    availability,
+    onConflict,
+  } = config.inputs;
 
   const blob = new Blob([zipBuffer], { type: "application/zip" });
   const form = new FormData();
   form.append("files", blob, "skills.zip");
+  form.append("onConflict", onConflict);
   for (const name of names) {
     form.append("names", name);
   }
